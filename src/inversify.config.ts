@@ -7,6 +7,7 @@ import { AccountService, IAccountService } from "./application/AccountService";
 
 import "./presentation/AccountController";
 import { AccountAggregateRepo, IAccountAggregateRepo } from "./infrastructure/AccountAggregateRepo";
+import { AccountAggregateFactory, IAccountAggregateFactory } from "./infrastructure/AccountAggregateFactory";
 
 export default async function loadContainer() {
 
@@ -14,7 +15,8 @@ export default async function loadContainer() {
 
     container.bind<IAccountService>(TYPES.IAccountService).to(AccountService);
     container.bind<IAccountAggregateRepo>(TYPES.IAccountAggregateRepo).to(AccountAggregateRepo);
-
+    container.bind<IAccountAggregateFactory>(TYPES.IAccountAggregrateFactory).to(AccountAggregateFactory);
+    
     const dbBindings = new AsyncContainerModule(async bind => {
         const connectedDb = await db.initialize();
 

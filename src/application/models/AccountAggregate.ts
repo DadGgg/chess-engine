@@ -25,5 +25,5 @@ export class AccountAggregate {
 }
 
 export class DomainError extends Error {
-    type: "DomainError"
+    type: string = "DomainError"
 }

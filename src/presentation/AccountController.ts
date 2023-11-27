@@ -12,7 +12,7 @@ export default class AccountController extends BaseHttpController {
         super();
         this.service = service;
     }
-
+    
     @httpGet("/")
     private async getAccounts(request: Request) {
         const accounts = await this.service.getAll();

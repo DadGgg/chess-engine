@@ -1,37 +1,36 @@
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Repository } from "typeorm";
 import { TYPES } from "../TYPES";
 import { AccountAggregate } from "../application/models/AccountAggregate";
 import { Account } from "./models/Account";
+import { IAccountAggregateFactory } from "./AccountAggregateFactory";
 
-export interface IAccountAggregateRepo {
-    // factory method -> purpose is to call the constructor
-    create(username: string, password: string, id?: number): AccountAggregate;
-
-    getById(id: number): Promise<AccountAggregate>;
+export interface IAccountAggregateRepo {  
     getAll(): Promise<AccountAggregate[]>;
+    getById(id: number): Promise<AccountAggregate>;
     save(account: AccountAggregate): Promise<AccountAggregate>;
     delete(id: number): Promise<boolean>;
 }
 
+@injectable()
 export class AccountAggregateRepo implements IAccountAggregateRepo {
     private readonly dataRepo: Repository<Account>;
-    constructor(@inject(TYPES.AccountDataRepo) dataRepo: Repository<Account>) {
+    private readonly factory: IAccountAggregateFactory;
+    constructor(
+        @inject(TYPES.AccountDataRepo) dataRepo: Repository<Account>, 
+        @inject(TYPES.IAccountAggregrateFactory) factory: IAccountAggregateFactory
+    ) {
         this.dataRepo = dataRepo;
+        this.factory = factory;
     }
-
-    // factory method, just calling constructor for us
-    create(username: string, password: string, id: number = null): AccountAggregate {
-        return new AccountAggregate(username, password, id);
-    }
-
-    async getById(id: number): Promise<AccountAggregate> {
-        const dataModel = await this.dataRepo.findOneBy({id: id});
-        return this.mapToAggregateModel(dataModel);
-    }
+    
     async getAll(): Promise<AccountAggregate[]> {
         const dataModels = await this.dataRepo.find();
         return dataModels.map(dataModel => this.mapToAggregateModel(dataModel));
+    }
+    async getById(id: number): Promise<AccountAggregate> {
+        const dataModel = await this.dataRepo.findOneBy({id: id});
+        return this.mapToAggregateModel(dataModel);
     }
     async save(account: AccountAggregate): Promise<AccountAggregate> {
         const dataModel = this.mapToDataModel(account);
@@ -57,7 +56,7 @@ export class AccountAggregateRepo implements IAccountAggregateRepo {
     }
 
     private mapToAggregateModel(accountData: Account) {
-        const account = this.create(accountData.username, accountData.password, accountData.id);
+        const account = this.factory.create(accountData.username, accountData.password, accountData.id);
         return account;
     }
 

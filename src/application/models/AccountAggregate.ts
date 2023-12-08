@@ -14,7 +14,6 @@ export class AccountAggregate {
         }
         this.password = value;
     }
-
     getState() {
         return {
             id: this.id,
@@ -26,4 +25,7 @@ export class AccountAggregate {
 
 export class DomainError extends Error {
     type: string = "DomainError"
+    constructor(message: string){
+        super(message);
+    }
 }

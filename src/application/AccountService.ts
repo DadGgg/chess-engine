@@ -26,7 +26,7 @@ export class AccountService implements IAccountService {
     }  
 
     async create(accountDto: AccountDto): Promise<AccountDto> {
-        const account = this.factory.create(accountDto.name, accountDto.security);
+        const account = this.factory.create(accountDto.username, accountDto.password);
         const savedAccount = await this.repo.save(account);
         return this.mapToDto(savedAccount);
     }    
@@ -40,7 +40,7 @@ export class AccountService implements IAccountService {
     }
     async update(accountDto: AccountDto): Promise<AccountDto> {
         const account = await this.repo.getById(accountDto.id);
-        account.setPassword(accountDto.security);
+        account.setPassword(accountDto.password);
 
         const savedAccount = await this.repo.save(account);
         return this.mapToDto(savedAccount);
@@ -52,8 +52,9 @@ export class AccountService implements IAccountService {
     private mapToDto(account: AccountAggregate) {
         const state = account.getState();
         const dto = new AccountDto();
-        dto.name = state.username;
-        dto.security = state.password;
+        dto.id = state.id;
+        dto.username = state.username;
+        dto.password = state.password;
         return dto;
     }
 }
